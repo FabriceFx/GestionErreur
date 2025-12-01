@@ -78,3 +78,39 @@ const CONFIG_LOGS = {
 // Initialisation
 init(CONFIG_LOGS);
 // Si utilisé via bibliothèque externe : LogLib.init(CONFIG_LOGS);
+```
+Exemple complet
+
+```javascript
+
+const lancerTraitement = () => {
+  // 1. INITIALISATION (OBLIGATOIRE)
+  // Vous configurez ici votre script spécifique
+  LIB_GestionErreurs.init({
+    idSpreadsheet: '1732Hh98CqFs6i4YNaNv7cxIei3l2crmnv6PA1lMOpXE', // Votre ID
+    emailsAlerte: 'fabrice.faucheux@gmail.com',
+    maxLignesLogs: 1000 // Optionnel : je veux garder seulement 1000 lignes pour ce projet
+  });
+
+  try {
+    // ... Code métier ...
+    const idClientEnCours = "C-4589";
+    const montantCommande = 150.00;
+
+    // Simulation d'erreur
+    if (montantCommande > 100) {
+      throw new Error("CRITIQUE : Plafond dépassé");
+    }
+
+  } catch (e) {
+    // 2. APPEL AVEC CONTEXTE
+    // Notez le nouvel argument {...} après l'erreur
+    const contexte = {
+      client: "C-4589",
+      montant: 150,
+      etape: "Validation Panier"
+    };
+
+    LIB_GestionErreurs.journaliserErreur("Script Vente", "lancerTraitement", e, contexte);
+  }
+};
