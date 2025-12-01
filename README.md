@@ -87,8 +87,8 @@ const lancerTraitement = () => {
   // 1. INITIALISATION (OBLIGATOIRE)
   // Vous configurez ici votre script spécifique
   LIB_GestionErreurs.init({
-    idSpreadsheet: '1732Hh98CqFs6i4YNaNv7cxIei3l2crmnv6PA1lMOpXE', // Votre ID
-    emailsAlerte: 'fabrice.faucheux@gmail.com',
+    idSpreadsheet: 'xxxxxx', // Votre ID
+    emailsAlerte: 'test@email.com',
     maxLignesLogs: 1000 // Optionnel : je veux garder seulement 1000 lignes pour ce projet
   });
 
