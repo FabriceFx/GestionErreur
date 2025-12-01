@@ -1,4 +1,4 @@
-# GAS-LogLib : Gestionnaire d'Erreurs & Monitoring pour Google Apps Script
+# GAS-LogLib : Gestionnaire d'erreurs & monitoring pour Google Apps Script
 
 ![Version](https://img.shields.io/badge/version-4.1.0-blue.svg)
 ![License MIT](https://img.shields.io/badge/License-MIT-blue.svg)
@@ -28,7 +28,7 @@ Conçue pour les environnements de production critiques, elle gère la **concurr
 
 ---
 
-## 🚀 Fonctionnalités Clés
+## 🚀 Fonctionnalités clés
 
 * **🛡️ Robustesse Maximale** : Utilisation de `LockService` pour garantir l'intégrité des logs même lors d'exécutions simultanées.
 * **🧹 Rotation Intelligente** : Maintien automatique de la taille du fichier de log (FIFO - First In, First Out) selon un seuil configurable (défaut : 2000 lignes).
