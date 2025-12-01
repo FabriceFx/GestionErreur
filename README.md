@@ -1,38 +1,80 @@
-# LogLib - Bibliothèque de Gestion d'Erreurs Enterprise
+# GAS-LogLib : Gestionnaire d'Erreurs & Monitoring pour Google Apps Script
 
+![Version](https://img.shields.io/badge/version-4.1.0-blue.svg)
 ![License MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Platform](https://img.shields.io/badge/Platform-Google%20Apps%20Script-green)
-![Runtime](https://img.shields.io/badge/Google%20Apps%20Script-V8-green)
-![Author](https://img.shields.io/badge/Auteur-Fabrice%20Faucheux-orange)
+![Runtime](https://img.shields.io/badge/Runtime-V8-orange)
+![Author](https://img.shields.io/badge/Auteur-Fabrice%20Faucheux-lightgrey)
 
-Une solution robuste pour centraliser les logs d'erreurs Google Apps Script dans un Google Sheet, avec rotation automatique des logs et alertes email HTML enrichies pour les erreurs critiques.
+**GAS-LogLib** est une solution robuste, légère et autonome permettant de gérer les erreurs (Error Handling), de centraliser les logs et d'alerter les administrateurs au sein de l'écosystème Google Workspace.
+
+Conçue pour les environnements de production critiques, elle gère la **concurrence d'accès**, la **rotation automatique des logs** (pour ne pas saturer vos Spreadsheets) et l'envoi d'**alertes email HTML enrichies**.
+
+---
+
+## 📋 Table des Matières
+
+1. [Fonctionnalités Clés](#-fonctionnalités-clés)
+2. [Prérequis](#-prérequis)
+3. [Installation](#-installation)
+4. [Configuration](#-configuration)
+5. [Utilisation](#-utilisation)
+    - [Cas Standard (Try/Catch)](#cas-standard-trycatch)
+    - [Utilisation du Contexte](#utilisation-du-contexte)
+    - [Forcer une Alerte](#forcer-une-alerte)
+6. [Architecture & Performance](#-architecture--performance)
+7. [Référence API](#-référence-api)
+8. [Contribuer](#-contribuer)
+
+---
 
 ## 🚀 Fonctionnalités Clés
 
-* **Centralisation** : Tous les logs sont écrits dans un Spreadsheet unique.
-* **Rotation Automatique** : Supprime les anciennes lignes pour éviter de saturer le Sheet (limite par défaut : 2000 lignes).
-* **Alertes HTML** : Envoie des emails formatés proprement avec contexte JSON et Stack Trace.
-* **Concurrence** : Utilise `LockService` pour éviter les conflits d'écriture.
-* **Contexte Enrichi** : Permet de passer des objets JSON (ex: ID client, données traitées) pour faciliter le débogage.
+* **🛡️ Robustesse Maximale** : Utilisation de `LockService` pour garantir l'intégrité des logs même lors d'exécutions simultanées.
+* **🧹 Rotation Intelligente** : Maintien automatique de la taille du fichier de log (FIFO - First In, First Out) selon un seuil configurable (défaut : 2000 lignes).
+* **📧 Alertes Contextuelles** : Emails HTML responsive incluant la pile d'exécution (Stack Trace), les données contextuelles JSON et les métadonnées de l'exécution.
+* **⚙️ Zéro Dépendance** : Fonctionne nativement sans bibliothèque tierce.
+* **🔍 Traçabilité** : Enregistre l'utilisateur effectif, le nom du script, la fonction et l'horodatage précis.
+
+---
+
+## 📦 Prérequis
+
+* Un compte **Google Workspace** ou Gmail.
+* Un projet **Google Apps Script** (autonome ou lié à un document).
+* Un **Google Sheet** vierge qui servira de base de données de logs.
+
+---
 
 ## 🛠 Installation
 
-1.  Créez un nouveau script ou un fichier `LogLib.gs` dans votre projet.
-2.  Copiez le code fourni dans ce fichier.
-3.  Créez un Google Sheet vierge qui servira de réceptacle aux logs. Notez son ID (disponible dans l'URL).
+### Méthode 1 : Copier-Coller (Recommandée pour petits projets)
+1.  Ouvrez votre projet Apps Script.
+2.  Créez un nouveau fichier de script nommé `LogLib.gs`.
+3.  Copiez l'intégralité du code source de la bibliothèque dans ce fichier.
 
-## 💻 Utilisation
+### Méthode 2 : En tant que Bibliothèque (Library)
+1.  Déployez ce script en tant que bibliothèque dans votre propre environnement.
+2.  Notez l'ID du Script (Project Settings > Script ID).
+3.  Dans votre projet client : `Éditeur > Bibliothèques > Ajouter une bibliothèque` et collez l'ID.
+4.  Utilisez le namespace choisi (ex: `LogLib`).
 
-### 1. Initialisation
-Au tout début de votre script principal (ou dans la zone globale), initialisez la bibliothèque.
+---
+
+## ⚙ Configuration
+
+Avant toute utilisation, la bibliothèque doit être initialisée. Idéalement, placez ce code en variable globale ou au début de votre fonction `main()`.
 
 ```javascript
+// Configuration de l'objet
 const CONFIG_LOGS = {
-  idSpreadsheet: "1abc...votre_id_spreadsheet...xyz", // OBLIGATOIRE
-  emailsAlerte: "admin@domaine.com,dev@domaine.com",  // Recommandé
-  nomFeuille: "Logs_Production"                       // Optionnel (défaut: 'Erreurs')
+  idSpreadsheet: "1xYz_votre_id_spreadsheet_Azk9...", // [OBLIGATOIRE] ID du GSheet
+  nomFeuille: "Logs_Production",                      // [OPTIONNEL] Défaut: 'Erreurs'
+  emailsAlerte: "admin@societe.com,dev@societe.com",  // [OPTIONNEL] Pour les notifs
+  maxLignesLogs: 5000,                                // [OPTIONNEL] Défaut: 2000
+  motsClesCritiques: ['FATAL', 'API_DOWN', '404']     // [OPTIONNEL] Déclencheurs d'emails
 };
 
-// Si utilisé comme bibliothèque externe : LogLib.init(CONFIG_LOGS);
-// Si code inclus directement :
+// Initialisation
 init(CONFIG_LOGS);
+// Si utilisé via bibliothèque externe : LogLib.init(CONFIG_LOGS);
